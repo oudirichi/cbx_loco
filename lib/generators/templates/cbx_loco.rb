@@ -1,8 +1,7 @@
 CbxLoco.setup do |config|
-  config.api_key = ENV["YOUR_API_KEY"]
-  config.languages = %w[en fr].freeze
+  config.LANGUAGES = %w[en fr].freeze
 
-  config.file_formats = {
+  config.FILE_FORMATS = {
     yaml: {
       api_ext: "yml",
       delete: false,
@@ -12,7 +11,7 @@ CbxLoco.setup do |config|
     }
   }.freeze
 
-  config.i18n_files = [
+  config.I18N_FILES = [
     {
       format: :yaml,
       id: "server",
