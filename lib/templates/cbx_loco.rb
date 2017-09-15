@@ -1,4 +1,4 @@
-CbxLoco.setup do |config|
+CbxLoco.configure do |config|
   config.api_key = ENV["YOUR_API_KEY"]
   config.languages = %w[en fr].freeze
 

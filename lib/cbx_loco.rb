@@ -1,17 +1,17 @@
 require "cbx_loco/version"
+require 'cbx_loco/configuration'
+require 'cbx_loco/loco'
+require 'cbx_loco/commands'
+
 
 module CbxLoco
-  mattr_accessor :file_formats, default: {}
-  mattr_accessor :languages, default: []
-  mattr_accessor :i18n_files, default: []
-  mattr_accessor :api_key, default: nil
-
-  def self.setup
-    yield self
+  def self.configuration
+    @configuration ||= Configuration.new
   end
 
-  def self.extract
-    self.i18n_files
+  def self.configure
+    config = configuration
+    yield(config)
   end
 
   def self.run(command)
@@ -19,11 +19,11 @@ module CbxLoco
     p api_key
 
     if command[:extract]
-
+      Loco.extract
     end
 
     if command[:import]
-
+      Loco.import
     end
   end
 end

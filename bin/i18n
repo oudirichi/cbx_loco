@@ -2,6 +2,6 @@
 
 require "cbx_loco"
 
-command = CbxLoco::commands.parse ARGV
+command = CbxLoco::Commands.parse ARGV
 
 CbxLoco.run command
