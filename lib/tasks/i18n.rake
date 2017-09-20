@@ -1,4 +1,6 @@
 namespace :i18n do
+  require 'cbx_loco'
+
   desc "Extract i18n assets, and upload them to the online service"
   task :extract do
     command { extract: true }

@@ -3,6 +3,7 @@
 require "cbx_loco"
 
 CbxLoco.configuration.root = File.expand_path('../..', __FILE__)
+require File.expand_path('../../config/boot',  __FILE__)
 
 command = CbxLoco::Commands.parse ARGV
 
