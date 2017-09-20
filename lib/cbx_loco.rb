@@ -1,4 +1,3 @@
-require 'cbx_loco/railtie' if defined?(::Rails)
 require 'active_support'
 require 'active_support/core_ext'
 require 'cbx_loco/railtie' if defined?(::Rails)

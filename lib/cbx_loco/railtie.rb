@@ -5,5 +5,4 @@ class CbxLoco::Railtie < ::Rails::Railtie
   rake_tasks do
     load 'tasks/i18n.rake'
   end
-
 end
