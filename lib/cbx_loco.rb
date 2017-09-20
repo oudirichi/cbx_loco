@@ -1,7 +1,5 @@
 require 'active_support'
 require 'active_support/core_ext'
-require 'haml'
-
 require "cbx_loco/version"
 require 'cbx_loco/configuration'
 require 'cbx_loco/loco_adapter'

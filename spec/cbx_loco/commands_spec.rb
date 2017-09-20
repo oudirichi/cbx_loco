@@ -26,18 +26,17 @@ describe CbxLoco::Commands do
 
     context "call with any command" do
       it "should print help" do
-        expect { CbxLoco::Commands.parse ["any_method"] }.to output.to_stdout
+        begin
+          expect { CbxLoco::Commands.parse ["any_method"] }.to output.to_stdout
+        rescue SystemExit => e
+        end
       end
     end
 
     context "call with nothing" do
-      it "should print help" do
-        expect { CbxLoco::Commands.parse [] }.to output.to_stdout
-      end
-
-      it "should exit" do
+      it "should print help and exit" do
         begin
-          CbxLoco::Commands.parse []
+          expect { CbxLoco::Commands.parse [] }.to output.to_stdout
         rescue SystemExit => e
           expect(e.status).to eq 1
         end
