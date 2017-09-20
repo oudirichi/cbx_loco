@@ -1,8 +1,10 @@
-class CbxLoco::Railtie < ::Rails::Railtie
+module CbxLoco
+  class Railtie < ::Rails::Railtie
 
-  railtie_name :cbx_loco
+    railtie_name :cbx_loco
 
-  rake_tasks do
-    load 'tasks/i18n.rake'
+    rake_tasks do
+      load 'tasks/i18n.rake'
+    end
   end
 end
