@@ -1,4 +1,4 @@
-require "test_helper"
+require "spec_helper"
 
 describe CbxLoco::VERSION do
   it "should return the version number" do

@@ -1,7 +1,6 @@
-require "test_helper"
+require "spec_helper"
 
 describe CbxLoco::Commands do
-
   describe "#parse" do
     context "call with import" do
       it "should return import command" do

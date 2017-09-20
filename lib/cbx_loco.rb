@@ -1,6 +1,10 @@
+require 'active_support'
+require 'active_support/core_ext'
+require 'haml'
+
 require "cbx_loco/version"
 require 'cbx_loco/configuration'
-require 'cbx_loco/loco'
+require 'cbx_loco/loco_adapter'
 require 'cbx_loco/commands'
 
 
@@ -15,15 +19,12 @@ module CbxLoco
   end
 
   def self.run(command)
-    p command
-    p api_key
-
     if command[:extract]
-      Loco.extract
+      LocoAdapter.extract
     end
 
     if command[:import]
-      Loco.import
+      LocoAdapter.import
     end
   end
 end

@@ -19,4 +19,12 @@ CbxLoco.configure do |config|
       name: "devise"
     }
   ].freeze
+
+  # config.on :after_import do
+  #   puts "do something awesome after import!"
+  # end
+  #
+  # config.on :on_extract do
+  #   puts "do something else during extract!"
+  # end
 end

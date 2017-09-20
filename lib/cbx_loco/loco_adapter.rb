@@ -1,45 +1,13 @@
-# require 'active_support'
+require 'rest-client'
+require 'time'
+require 'json'
+require 'yaml'
+require 'colorize'
+require 'byebug'
+require 'get_pomo'
+require 'fileutils'
 
 module CbxLoco
-
-
-  # LANGUAGES = %w[en fr].freeze
-  #
-  # FILE_FORMATS = {
-  #   gettext: {
-  #     api_ext: "po",
-  #     delete: true,
-  #     dst_ext: "po",
-  #     src_ext: "pot",
-  #     path: "locale"
-  #   },
-  #   yaml: {
-  #     api_ext: "yml",
-  #     delete: false,
-  #     dst_ext: "yml",
-  #     src_ext: "yml",
-  #     path: "config/locales"
-  #   }
-  # }.freeze
-  #
-  # I18N_FILES = [
-  #   {
-  #     format: :yaml,
-  #     id: "server",
-  #     name: "cbx"
-  #   },
-  #   {
-  #     format: :yaml,
-  #     id: "server",
-  #     name: "devise"
-  #   },
-  #   {
-  #     format: :gettext,
-  #     id: "client",
-  #     name: "front_end"
-  #   }
-  # ].freeze
-
   def self.asset_tag(*args)
     args.join("-").gsub(/[^a-z,-]/i, "")
   end
@@ -54,28 +22,26 @@ module CbxLoco
   end
 
   def self.file_path(*args)
-    Rails.root.join(*args).to_s
+    File.join(CbxLoco.configuration.root.to_s, *args).to_s
   end
 
-  class Loco
-    # API_URL = "https://localise.biz:443/api/".freeze
-    # API_KEY = ENV["I18N_API_KEY"]
-
+  class LocoAdapter
     def self.get(api_path, params = {}, json = true)
-      params = params.merge(key: API_KEY, ts: Time.now.getutc)
-      res = RestClient.get API_URL + api_path, params: params
+      params = params.merge(key: CbxLoco.configuration.api_key, ts: Time.now.getutc)
+      res = RestClient.get CbxLoco.configuration.api_url + api_path, params: params
 
       json ? JSON.parse(res.body) : res.body
     end
 
     def self.post(api_path, params = {})
-      res = RestClient.post API_URL + api_path + "?key=#{API_KEY}", params
+      res = RestClient.post CbxLoco.configuration.api_url + api_path + "?key=#{CbxLoco.configuration.api_key}", params
 
       JSON.parse res.body
     end
 
     def self.valid_api_key?
-      valid = API_KEY.present?
+      p CbxLoco.configuration.api_key
+      valid = CbxLoco.configuration.api_key.present?
       puts "MISSING I18N API KEY. ABORTING.".colorize(:red).bold unless valid
       valid
     end
@@ -86,15 +52,15 @@ module CbxLoco
       puts "\n" + "Extract i18n assets".colorize(:green).bold
 
       print "Removing old files... "
-      I18N_FILES.each do |i18n_file|
-        fmt = FILE_FORMATS[i18n_file[:format]]
+      CbxLoco.configuration.i18n_files.each do |i18n_file|
+        fmt = CbxLoco.configuration.file_formats[i18n_file[:format]]
 
         next unless fmt[:delete]
 
         path = fmt[:path]
         src_ext = fmt[:src_ext]
-        file_path = I18n.file_path path, [i18n_file[:name], src_ext].join(".")
-        File.unlink file_path if File.file?(file_path)
+        i18n_file_path = CbxLoco.file_path path, [i18n_file[:name], src_ext].join(".")
+        File.unlink i18n_file_path if File.file?(i18n_file_path)
       end
       puts "Done!".colorize(:green)
 
@@ -102,26 +68,28 @@ module CbxLoco
       `i18n-tasks add-missing`
       puts "Done!".colorize(:green)
 
-      print "Extracting client assets... "
-      `./node_modules/grunt-cli/bin/grunt nggettext_extract`
-      puts "Done!".colorize(:green)
+      run_event :on_extract
+
+      # print "Extracting client assets... "
+      # `./node_modules/grunt-cli/bin/grunt nggettext_extract`
+      # puts "Done!".colorize(:green)
 
       @assets = {}
-      I18N_FILES.each do |i18n_file|
-        fmt = FILE_FORMATS[i18n_file[:format]]
+      CbxLoco.configuration.i18n_files.each do |i18n_file|
+        fmt = CbxLoco.configuration.file_formats[i18n_file[:format]]
         path = fmt[:path]
         src_ext = fmt[:src_ext]
 
         case i18n_file[:format]
         when :gettext
-          file_path = I18n.file_path path, [i18n_file[:name], src_ext].join(".")
+          file_path = CbxLoco.file_path path, [i18n_file[:name], src_ext].join(".")
           translations = GetPomo::PoFile.parse File.read(file_path)
           msgids = translations.reject { |t| t.msgid.blank? }.map(&:msgid)
         when :yaml
-          language = LANGUAGES.first
-          file_path = I18n.file_path path, [i18n_file[:name], language, src_ext].join(".")
+          language = CbxLoco.configuration.languages.first
+          file_path = CbxLoco.file_path path, [i18n_file[:name], language, src_ext].join(".")
           translations = YAML.load_file file_path
-          msgids = I18n.flatten_hash(translations[language])
+          msgids = CbxLoco.flatten_hash(translations[language])
         end
 
         msgids.each do |msgid|
@@ -132,16 +100,16 @@ module CbxLoco
 
             # add the singular
             @assets[singular] = { tags: [] } if @assets[singular].nil?
-            @assets[singular][:tags] << I18n.asset_tag(i18n_file[:id], i18n_file[:name])
+            @assets[singular][:tags] << CbxLoco.asset_tag(i18n_file[:id], i18n_file[:name])
 
             # add the plural
             @assets[plural] = { tags: [] } if @assets[plural].nil?
             @assets[plural][:singular_id] = singular
-            @assets[plural][:tags] << I18n.asset_tag(i18n_file[:id], i18n_file[:name])
+            @assets[plural][:tags] << CbxLoco.asset_tag(i18n_file[:id], i18n_file[:name])
           else
             @assets[msgid] = { tags: [] } if @assets[msgid].nil?
             @assets[msgid][:id] = msgid if i18n_file[:format] == :yaml
-            @assets[msgid][:tags] << I18n.asset_tag(i18n_file[:id], i18n_file[:name])
+            @assets[msgid][:tags] << CbxLoco.asset_tag(i18n_file[:id], i18n_file[:name])
           end
         end
       end
@@ -191,7 +159,7 @@ module CbxLoco
         puts "\n" + "All done!".colorize(:green).bold
       rescue => e
         res = JSON.parse e.response
-        puts "\n" + "\nUpload to online service failed: #{e.message}: #{res["error"]}".colorize(:red).bold
+        print_error "Upload to online service failed: #{e.message}: #{res["error"]}"
       end
     end
 
@@ -200,13 +168,13 @@ module CbxLoco
 
       puts "\n" + "Import i18n assets from Loco".colorize(:green).bold
       begin
-        I18N_FILES.each do |i18n_file|
-          LANGUAGES.each do |language|
-            fmt = FILE_FORMATS[i18n_file[:format]]
+        CbxLoco.configuration.i18n_files.each do |i18n_file|
+          CbxLoco.configuration.languages.each do |language|
+            fmt = CbxLoco.configuration.file_formats[i18n_file[:format]]
             path = fmt[:path]
             dst_ext = fmt[:dst_ext]
             api_ext = fmt[:api_ext]
-            tag = I18n.asset_tag i18n_file[:id], i18n_file[:name]
+            tag = CbxLoco.asset_tag i18n_file[:id], i18n_file[:name]
 
             print "Importing \"#{language}\" #{tag} assets... "
 
@@ -214,10 +182,10 @@ module CbxLoco
             case i18n_file[:format]
             when :gettext
               api_params[:index] = "name"
-              file_path = I18n.file_path path, language, [i18n_file[:name], dst_ext].join(".")
+              file_path = CbxLoco.file_path path, language, [i18n_file[:name], dst_ext].join(".")
             when :yaml
               api_params[:format] = "rails"
-              file_path = I18n.file_path path, [i18n_file[:name], language, dst_ext].join(".")
+              file_path = CbxLoco.file_path path, [i18n_file[:name], language, dst_ext].join(".")
             end
 
             translations = get "export/locale/#{language}.#{api_ext}", api_params, false
@@ -230,20 +198,35 @@ module CbxLoco
           end
         end
 
-        puts "\n" + "Compile i18n assets".colorize(:green).bold
+        # puts "\n" + "Compile i18n assets".colorize(:green).bold
+        #
+        # print "Compiling client assets... "
+        # `./node_modules/grunt-cli/bin/grunt nggettext_compile`
+        # puts "Done!".colorize(:green)
+        run_event :after_import
 
-        print "Compiling client assets... "
-        `./node_modules/grunt-cli/bin/grunt nggettext_compile`
-        puts "Done!".colorize(:green)
-
-        puts "\n" + "All done!".colorize(:green).bold
+      rescue Errno::ENOENT => e
+        print_error "Caught the exception: #{e}"
       rescue => e
         translations = {}
         GetPomo::PoFile.parse(e.response).each do |t|
           translations[t.msgid] = t.msgstr unless t.msgid.blank?
         end
-        puts "\n" + "\nDownload from online service failed: #{translations["status"]}: #{translations["error"]}".colorize(:red).bold
+        print_error "Download from online service failed: #{translations["status"]}: #{translations["error"]}"
       end
+    end
+
+    private
+
+    def self.print_error(message)
+      puts "\n\n" + message.colorize(:red).bold
+    end
+
+    def self.run_event(event_name)
+      CbxLoco.configuration.tasks.with_indifferent_access
+
+      callables = CbxLoco.configuration.tasks[event_name] || []
+      callables.each { |callable| callable.call }
     end
   end
 end
