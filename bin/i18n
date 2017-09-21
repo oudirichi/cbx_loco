@@ -1,7 +1,0 @@
-#!/usr/bin/env ruby
-
-require "cbx_loco"
-
-command = CbxLoco::Commands.parse ARGV
-
-CbxLoco.run command
