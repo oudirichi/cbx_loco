@@ -11,7 +11,8 @@ module CbxLoco
     end
 
     rake_tasks do
-      load '../tasks/i18n.rake'
+      load File.expand_path("../tasks/i18n.rake",File.dirname(__FILE__))
+
     end
   end
 end
