@@ -24,7 +24,7 @@ CbxLoco.configure do |config|
   #   puts "do something awesome after import!"
   # end
   #
-  # config.on :on_extract do
+  # config.on :before_extract do
   #   puts "do something else during extract!"
   # end
 end

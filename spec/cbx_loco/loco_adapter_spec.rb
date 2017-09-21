@@ -116,7 +116,7 @@ describe CbxLoco::LocoAdapter do
   end
 
   before(:each) do
-    @on_extract_call = false
+    @before_extract_call = false
     @after_import_call = false
 
     CbxLoco.configure do |c|
@@ -130,8 +130,8 @@ describe CbxLoco::LocoAdapter do
         @after_import_call = true
       end
 
-      c.on :on_extract do
-        @on_extract_call = true
+      c.on :before_extract do
+        @before_extract_call = true
       end
     end
 
@@ -234,14 +234,9 @@ describe CbxLoco::LocoAdapter do
       expect(File).to have_received(:unlink).once
     end
 
-    it "should extract server assets" do
+    it "should run before_extract" do
       CbxLoco::LocoAdapter.extract
-      expect(CbxLoco::LocoAdapter).to have_received(:`).with("i18n-tasks add-missing")
-    end
-
-    it "should run on_extract" do
-      CbxLoco::LocoAdapter.extract
-      expect(@on_extract_call).to be true
+      expect(@before_extract_call).to be true
     end
 
     it "should extract assets with tags" do

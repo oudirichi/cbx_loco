@@ -64,11 +64,7 @@ module CbxLoco
       end
       puts "Done!".colorize(:green)
 
-      print "Extracting server assets... "
-      `i18n-tasks add-missing`
-      puts "Done!".colorize(:green)
-
-      run_event :on_extract
+      run_event :before_extract
 
       @assets = {}
       CbxLoco.configuration.i18n_files.each do |i18n_file|

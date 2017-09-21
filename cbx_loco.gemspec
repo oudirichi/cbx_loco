@@ -10,7 +10,13 @@ Gem::Specification.new do |s|
   s.email = ["developper@cognibox.com"]
 
   s.summary = %q{Write a short summary, because Rubygems requires one.}
-  s.description = %q{Write a longer description or delete this line.}
+  s.summary = %q{Provides rake tasks to synchronize translation assets between the codebase and Loco.}
+  s.description = <<-TEXT
+- `rake i18n:extract` extracts assets from server and client code, and uploads them to Loco using the developer API.
+- `rake i18n:import` Imports assets from Loco using developer API into server-specific files and client-specific files
+
+CbxLoco requires configuration of a Loco API key in `application.yml`
+TEXT
   s.post_install_message = %q{Thanks for using CbxLoco! Remember to run rails generate cbx_loco:install}
 
   # Prevent pushing this gem to RubyGems.org. To allow pushes either set the 'allowed_push_host'
@@ -36,7 +42,6 @@ Gem::Specification.new do |s|
   s.add_dependency "colorize", "~> 0.8.1"
 
   s.add_dependency "rails", ">= 3.2"
-  s.add_dependency "i18n-tasks", "~> 0.3.9"
   s.add_dependency "json", "~> 1.8"
   s.add_dependency "activesupport", "~> 5.1"
   s.add_dependency "rest-client", "~> 1.6.7"
