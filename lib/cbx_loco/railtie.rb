@@ -11,7 +11,7 @@ module CbxLoco
     end
 
     rake_tasks do
-      load 'tasks/i18n.rake'
+      load '../tasks/i18n.rake'
     end
   end
 end
