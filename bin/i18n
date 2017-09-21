@@ -2,8 +2,6 @@
 
 require "cbx_loco"
 
-CbxLoco.configuration.root = ::Rails.root
-
 command = CbxLoco::Commands.parse ARGV
 
 CbxLoco.run command

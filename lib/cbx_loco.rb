@@ -1,12 +1,13 @@
 require 'active_support'
 require 'active_support/core_ext'
-require 'cbx_loco/railtie' if defined?(::Rails)
 require "cbx_loco/version"
 require 'cbx_loco/configuration'
 require 'cbx_loco/loco_adapter'
 require 'cbx_loco/commands'
 
 module CbxLoco
+  require 'cbx_loco/railtie' if defined?(Rails)
+
   def self.configuration
     @configuration ||= Configuration.new
   end
