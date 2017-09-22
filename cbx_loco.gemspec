@@ -36,14 +36,12 @@ TEXT
   s.require_paths = ["lib"]
 
   # Allow parsing of PO files
-  s.add_dependency "get_pomo", "~> 0.9.2"
+  s.add_dependency "get_pomo", "~> 0.7.1"
 
   # Allow colors in console outputs
   s.add_dependency "colorize", "~> 0.8.1"
 
   s.add_dependency "rails", ">= 3.2"
-  s.add_dependency "json", "~> 1.8"
-  s.add_dependency "activesupport", "~> 5.1"
   s.add_dependency "rest-client", "~> 1.6.7"
 
   s.add_development_dependency "byebug"
