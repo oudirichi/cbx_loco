@@ -3,7 +3,6 @@ require 'time'
 require 'json'
 require 'yaml'
 require 'colorize'
-require 'byebug'
 require 'get_pomo'
 require 'fileutils'
 
@@ -150,7 +149,7 @@ module CbxLoco
         puts "\n" + "All done!".colorize(:green).bold
       rescue => e
         res = JSON.parse e.response
-        print_error "Upload to online service failed: #{e.message}: #{res["error"]}"
+        print_error "Upload to Loco failed: #{e.message}: #{res["error"]}"
       end
     end
 
@@ -198,7 +197,7 @@ module CbxLoco
         GetPomo::PoFile.parse(e.response).each do |t|
           translations[t.msgid] = t.msgstr unless t.msgid.blank?
         end
-        print_error "Download from online service failed: #{translations["status"]}: #{translations["error"]}"
+        print_error "Download from Loco failed: #{translations["status"]}: #{translations["error"]}"
       end
     end
 
