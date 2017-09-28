@@ -1,4 +1,3 @@
-# require "test/unit"
 require "cbx_loco"
 require "rspec"
 require "byebug"
